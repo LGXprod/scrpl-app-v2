@@ -36,7 +36,7 @@ def get_subject_recommendations(subject_id: str, excluded_subjects: list[str] = 
             filters=(
                 wvc.query.Filter.by_property("university").equal("UTS")
             ),
-            limit=5,
+            limit=10,
             return_metadata=MetadataQuery(distance=True),
             include_vector=True,
         )
@@ -55,7 +55,7 @@ def get_subject_recommendations(subject_id: str, excluded_subjects: list[str] = 
 
         recommendations.sort(key=lambda x: x["similarity"], reverse=True)
     except:
-        return []
+        raise Exception("Failed to get recommendations")
 
     return recommendations
 
@@ -69,4 +69,8 @@ def read_root():
 def read_recommendation(subject_code: str, response: Response):
     subject_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"usyd-{subject_code}"))
 
-    return get_subject_recommendations(subject_id)
+    try:
+        return get_subject_recommendations(subject_id)
+    except:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return {"error": "Failed to get recommendations"}

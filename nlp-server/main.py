@@ -29,35 +29,42 @@ app = FastAPI()
 na_rpl_classifier = load("./na_rpl_classifier.joblib")
 
 
-def get_subject_recommendations(subject_id: str, excluded_subjects: list[str] = []):
+def get_subject_recommendations(subject_id: str, excluded_subjects: list[str] = [], num_subjects: int = 5):
     try:
-        response = subjects.query.near_object(
-            near_object=subject_id,
-            filters=(
-                wvc.query.Filter.by_property("university").equal("UTS")
-            ),
-            limit=10,
-            return_metadata=MetadataQuery(distance=True),
-            include_vector=True,
-        )
-
         recommendations = []
-
-        for obj in response.objects:
-            recommendations.append(
-                {
-                    "subject_code": obj.properties["subjectCode"],
-                    "subject_name": obj.properties["name"],
-                    "vector": obj.vector,
-                    "similarity": 1 - obj.metadata.distance,
-                }
+        limit = 10
+        
+        while len(recommendations) < 5:
+            response = subjects.query.near_object(
+                near_object=subject_id,
+                filters=(
+                    wvc.query.Filter.by_property("university").equal("UTS")
+                ),
+                limit=limit,
+                return_metadata=MetadataQuery(distance=True),
+                include_vector=True,
             )
 
-        recommendations.sort(key=lambda x: x["similarity"], reverse=True)
+            
+
+            for obj in response.objects:
+                if obj.properties["subjectCode"] in excluded_subjects:
+                    continue
+                
+                recommendations.append(
+                    {
+                        "subject_code": obj.properties["subjectCode"],
+                        "subject_name": obj.properties["name"],
+                        "vector": obj.vector,
+                        "similarity": 1 - obj.metadata.distance,
+                    }
+                )
+                
+            limit += 10
+            
+        return recommendations[:num_subjects]
     except:
         raise Exception("Failed to get recommendations")
-
-    return recommendations
 
 
 @app.get("/check")

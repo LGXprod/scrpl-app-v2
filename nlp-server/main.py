@@ -125,8 +125,8 @@ def read_root():
     return {"Hello": "World"}
 
 
-@app.get("/recommendation/{subject_code}")
-def read_recommendation(subject_code: str, response: Response):
+@app.get("/recommendation/{subject_code}/")
+def read_recommendation(subject_code: str, response: Response, remove_na_rpl: bool = True):
     subject_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"usyd-{subject_code}"))
 
     selected_subject_vector = subjects.query.fetch_object_by_id(
@@ -140,7 +140,7 @@ def read_recommendation(subject_code: str, response: Response):
     try:
         while len(recommendations) < 5 and num_attempts <= 5:
             for subject in get_subject_recommendations(subject_id, excluded_subjects):
-                if is_na_rpl(selected_subject_vector, subject.vector):
+                if remove_na_rpl and is_na_rpl(selected_subject_vector, subject.vector):
                     excluded_subjects.append(subject.subject_code)
                 else:
                     recommendations.add(subject)

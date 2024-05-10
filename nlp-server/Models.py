@@ -1,4 +1,5 @@
 from joblib import load
+from typing import Literal
 
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
@@ -32,18 +33,20 @@ def is_na_rpl(source_subject_vector, recommended_subject_vector):
 
 def get_subject_recommendations(
     subject: str | list[float],
-    excluded_subjects: list[str] = [],
+    excluded_subjects: list[str],
+    university: Literal["UTS", "USYD", "All"] = "UTS",
     num_subjects: int = 5,
 ) -> list[Subject]:
     try:
         recommendations = set([])
         limit = 10
+        filters = None if university == "All" else (wvc.query.Filter.by_property("university").equal(university))
 
         while len(recommendations) < 5:
             response = (
                 subject_collection.query.near_object(
                     near_object=subject,
-                    filters=(wvc.query.Filter.by_property("university").equal("UTS")),
+                    filters=filters,
                     limit=limit,
                     return_metadata=MetadataQuery(distance=True),
                     include_vector=True,
@@ -51,7 +54,7 @@ def get_subject_recommendations(
                 if type(subject) == str
                 else subject_collection.query.near_vector(
                     near_vector=subject,
-                    filters=(wvc.query.Filter.by_property("university").equal("UTS")),
+                    filters=filters,
                     limit=limit,
                     return_metadata=MetadataQuery(distance=True),
                     include_vector=True,

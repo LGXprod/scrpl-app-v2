@@ -1,8 +1,6 @@
 from pydantic import BaseModel
 
 class SubjectDetails(BaseModel):
-    subjectCode: str
-    name: str
     description: str
 
 class Subject:

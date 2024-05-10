@@ -1,4 +1,5 @@
 import uuid
+from typing import Literal
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, Response, status, Request
@@ -26,6 +27,7 @@ def read_recommendation(
     subject_code: str | None = None,
     subject_details: SubjectDetails = None,
     remove_na_rpl: bool = True,
+    university: Literal["UTS", "USYD", "All"] = "UTS",
 ):
     subject: str | list[float] = None
     selected_subject_vector: list[float] = None
@@ -36,7 +38,7 @@ def read_recommendation(
             subject, include_vector=True
         ).vector
     else:
-        description = f"""{subject_details.subjectCode}: {subject_details.name}\n\n{subject_details.description}"""
+        description = subject_details.description
         subject = selected_subject_vector = model.encode(description).tolist()
 
     recommendations: set[Subject] = set([])
@@ -45,7 +47,7 @@ def read_recommendation(
 
     try:
         while len(recommendations) < 5 and num_attempts <= 5:
-            for subject in get_subject_recommendations(subject, excluded_subjects):
+            for subject in get_subject_recommendations(subject, excluded_subjects, university):
                 if remove_na_rpl and is_na_rpl(selected_subject_vector, subject.vector):
                     excluded_subjects.append(subject.subject_code)
                 else:

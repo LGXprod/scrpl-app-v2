@@ -17,6 +17,7 @@ export default function App() {
   );
   const [debouncedSearchText] = useDebounce(searchText, 1000);
   const [selectedSubjects, setSelectedSubjects] = useState<Subject[]>([]);
+  const [isShowSelections, setIsShowSelections] = useState<boolean>(false);
 
   const {
     isPending: isSearching,
@@ -75,56 +76,84 @@ export default function App() {
     <div className="w-full p-16 relative">
       <h1 className="text-center text-5xl mb-12">RPL Recommendations Demo</h1>
 
-      {!sourceSubjectCode && (
-        <div className="w-full flex flex-col items-center justify-center gap-8 mb-12">
-          <SearchBar
-            setSearchText={setSearchText}
-            handleSearch={handleSearch}
-          />
-        </div>
+      {!isShowSelections && (
+        <>
+          {!sourceSubjectCode && (
+            <div className="w-full flex flex-col items-center justify-center gap-8 mb-12">
+              <SearchBar
+                setSearchText={setSearchText}
+                handleSearch={handleSearch}
+              />
+            </div>
+          )}
+
+          <div className="max-w-2xl mx-auto flex flex-col items-start justify-center gap-4">
+            {(isSearching || isGettingRecommendations) && (
+              <>
+                <SkeletonItem />
+                <SkeletonItem />
+                <SkeletonItem />
+                <SkeletonItem />
+                <SkeletonItem />
+              </>
+            )}
+
+            {!sourceSubjectCode && searchedSubjects && (
+              <SubjectList
+                subjects={searchedSubjects}
+                urlPrefix="https://www.sydney.edu.au/units/"
+                onSubjectClick={getSubjectRecommendations}
+              />
+            )}
+
+            {sourceSubjectCode && recommendedSubjects && (
+              <>
+                <SubjectList
+                  subjects={recommendedSubjects}
+                  excludeSubjects={selectedSubjects}
+                  urlPrefix="https://handbook.uts.edu.au/subjects/"
+                  addSubject={addSubject}
+                />
+
+                <button
+                  className="btn btn-primary mx-auto"
+                  onClick={() => setSourceSubjectCode(null)}
+                >
+                  Back
+                </button>
+              </>
+            )}
+          </div>
+
+          <div
+            onClick={() => setIsShowSelections(true)}
+            className="bg-emerald-500 hover:bg-emerald-600 cursor-pointer inline-block w-[50px] rounded-md p-2 absolute top-6 right-6"
+          >
+            <img alt="subject icon" src={SubjectsIcon} />
+          </div>
+        </>
       )}
 
-      <div className="max-w-2xl mx-auto flex flex-col items-start justify-center gap-4">
-        {(isSearching || isGettingRecommendations) && (
-          <>
-            <SkeletonItem />
-            <SkeletonItem />
-            <SkeletonItem />
-            <SkeletonItem />
-            <SkeletonItem />
-          </>
-        )}
-
-        {!sourceSubjectCode && searchedSubjects && (
-          <SubjectList
-            subjects={searchedSubjects}
-            urlPrefix="https://www.sydney.edu.au/units/"
-            onSubjectClick={getSubjectRecommendations}
-          />
-        )}
-
-        {sourceSubjectCode && recommendedSubjects && (
-          <>
+      {isShowSelections && (
+        <div className="max-w-2xl mx-auto flex flex-col items-start justify-center gap-4">
+          {selectedSubjects.length === 0 ? (
+            <h2 className="w-full text-center text-2xl mb-8">No subjects selected</h2>
+          ) : (
             <SubjectList
-              subjects={recommendedSubjects}
-              excludeSubjects={selectedSubjects}
+              subjects={selectedSubjects}
               urlPrefix="https://handbook.uts.edu.au/subjects/"
-              addSubject={addSubject}
+              removeSubject={removeSubject}
             />
+          )}
 
-            <button
-              className="btn btn-primary mx-auto"
-              onClick={() => setSourceSubjectCode(null)}
-            >
-              Back
-            </button>
-          </>
-        )}
-      </div>
-
-      <div className="bg-emerald-500 hover:bg-emerald-600 cursor-pointer inline-block w-[50px] rounded-md p-2 absolute top-6 right-6">
-        <img alt="subject icon" src={SubjectsIcon} />
-      </div>
+          <button
+            className="btn btn-primary mx-auto"
+            onClick={() => setIsShowSelections(false)}
+          >
+            Back
+          </button>
+        </div>
+      )}
     </div>
   );
 }

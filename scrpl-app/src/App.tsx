@@ -9,7 +9,7 @@ type Subject = { subject_code: string; name: string; similarity: number };
 
 export default function App() {
   const [searchText, setSearchText] = useState<string>("");
-  const [debouncedSearchText] = useDebounce(searchText, 1500);
+  const [debouncedSearchText] = useDebounce(searchText, 1000);
 
   const {
     isPending,

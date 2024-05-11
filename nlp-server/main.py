@@ -44,7 +44,7 @@ def read_recommendation(
     if request.method == "GET":
         source_subject = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"usyd-{subject_code}"))
         source_subject_vector = subject_collection.query.fetch_object_by_id(
-            subject, include_vector=True
+            source_subject, include_vector=True
         ).vector
     else:
         description = subject_details.description

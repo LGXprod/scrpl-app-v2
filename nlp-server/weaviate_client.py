@@ -1,6 +1,9 @@
 import os
 
+from dotenv import load_dotenv
 import weaviate
+
+load_dotenv()
 
 weaviate_client = weaviate.connect_to_custom(
     http_host="localhost",

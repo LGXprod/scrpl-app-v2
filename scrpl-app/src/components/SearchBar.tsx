@@ -8,15 +8,12 @@ export default function SearchBar({
   return (
     <div className="w-full flex items-center justify-center gap-8">
       <input
-        className="max-w-xl w-full px-4 py-2 rounded-md text-black"
         type="text"
-        placeholder="Search for a subject by code, title or description"
+        placeholder="Search for a USYD subject by code, title or description..."
+        className="input input-bordered w-full max-w-lg"
         onChange={(e) => setSearchText(e.target.value)}
       />
-      <button
-        className="bg-blue-600 px-4 py-2 rounded-md"
-        onClick={handleSearch}
-      >
+      <button className="btn btn-primary" onClick={handleSearch}>
         Search
       </button>
     </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import SearchBar from "./components/SearchBar";
 import axios from "axios";
@@ -18,6 +18,13 @@ export default function App() {
   const [debouncedSearchText] = useDebounce(searchText, 1000);
   const [selectedSubjects, setSelectedSubjects] = useState<Subject[]>([]);
   const [isShowSelections, setIsShowSelections] = useState<boolean>(false);
+
+  useEffect(() => {
+    const selectedSubjects = localStorage.getItem("selectedSubjects");
+    if (selectedSubjects) {
+      setSelectedSubjects(JSON.parse(selectedSubjects));
+    }
+  }, [setSelectedSubjects]);
 
   const {
     isPending: isSearching,
@@ -61,15 +68,19 @@ export default function App() {
   }
 
   function addSubject(subject: Subject) {
-    setSelectedSubjects((selectedSubjects) => [...selectedSubjects, subject]);
-    localStorage.setItem("selectedSubjects", JSON.stringify(selectedSubjects));
+    const updatedSubjects = [...selectedSubjects, subject];
+
+    setSelectedSubjects(updatedSubjects);
+    localStorage.setItem("selectedSubjects", JSON.stringify(updatedSubjects));
   }
 
   function removeSubject(subject: Subject) {
-    setSelectedSubjects((selectedSubjects) =>
-      selectedSubjects.filter((selectedSubject) => selectedSubject !== subject)
+    const updatedSubjects = selectedSubjects.filter(
+      (selectedSubject) => selectedSubject.subject_code !== subject.subject_code
     );
-    localStorage.setItem("selectedSubjects", JSON.stringify(selectedSubjects));
+
+    setSelectedSubjects(updatedSubjects);
+    localStorage.setItem("selectedSubjects", JSON.stringify(updatedSubjects));
   }
 
   return (
@@ -137,7 +148,9 @@ export default function App() {
       {isShowSelections && (
         <div className="max-w-2xl mx-auto flex flex-col items-start justify-center gap-4">
           {selectedSubjects.length === 0 ? (
-            <h2 className="w-full text-center text-2xl mb-8">No subjects selected</h2>
+            <h2 className="w-full text-center text-2xl mb-8">
+              No subjects selected
+            </h2>
           ) : (
             <SubjectList
               subjects={selectedSubjects}
@@ -146,12 +159,16 @@ export default function App() {
             />
           )}
 
-          <button
-            className="btn btn-primary mx-auto"
-            onClick={() => setIsShowSelections(false)}
-          >
-            Back
-          </button>
+          <div className="w-full flex items-center justify-center gap-4 mt-4">
+            <button className="btn btn-accent max-w-24 w-full">Submit</button>
+
+            <button
+              className="btn btn-primary max-w-24 w-full"
+              onClick={() => setIsShowSelections(false)}
+            >
+              Back
+            </button>
+          </div>
         </div>
       )}
     </div>

@@ -43,7 +43,7 @@ export default function SubjectList({
           <div
             key={index}
             className={`${isShowSimilarity ? "tooltip" : ""} bg-base-200 w-full flex flex-col items-start gap-2 px-10 py-6 rounded-lg mb-4 cursor-pointer hover:bg-slate-700`}
-            data-tip={`Similarity: ${getPercentageString(similarity)}`}
+            data-tip={`Similarity Score: ${getPercentageString(similarity)}`}
             onClick={() => onSubjectClick && onSubjectClick(subject)}
             style={{
               display: excludeSubjects?.includes(subject) ? "none" : "",

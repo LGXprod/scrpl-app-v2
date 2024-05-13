@@ -20,6 +20,11 @@ function getColorBySimiliarity(similarity: number) {
   return "text-red-400";
 }
 
+// get percentage string
+function getPercentageString(value: number) {
+  return `${(value * 100).toFixed(2)}%`;
+}
+
 export default function SubjectList({
   subjects,
   urlPrefix,
@@ -37,7 +42,8 @@ export default function SubjectList({
         return (
           <div
             key={index}
-            className="bg-base-200 w-full flex flex-col gap-2 px-10 py-6 rounded-lg mb-4 cursor-pointer hover:bg-slate-700"
+            className={`${isShowSimilarity ? "tooltip" : ""} bg-base-200 w-full flex flex-col items-start gap-2 px-10 py-6 rounded-lg mb-4 cursor-pointer hover:bg-slate-700`}
+            data-tip={`Similarity: ${getPercentageString(similarity)}`}
             onClick={() => onSubjectClick && onSubjectClick(subject)}
             style={{
               display: excludeSubjects?.includes(subject) ? "none" : "",

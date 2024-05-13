@@ -9,7 +9,16 @@ type Props = {
   onSubjectClick?: (subject: Subject) => void;
   addSubject?: (subject: Subject) => void;
   removeSubject?: (subject: Subject) => void;
+  isShowSimilarity?: boolean;
 };
+
+function getColorBySimiliarity(similarity: number) {
+  if (similarity >= 0.9) return "text-emerald-400";
+
+  if (similarity >= 0.7) return "text-amber-400";
+
+  return "text-red-400";
+}
 
 export default function SubjectList({
   subjects,
@@ -18,11 +27,12 @@ export default function SubjectList({
   addSubject,
   removeSubject,
   excludeSubjects,
+  isShowSimilarity,
 }: Props) {
   return (
     <>
       {subjects.map((subject, index) => {
-        const { subject_code, name } = subject;
+        const { subject_code, name, similarity } = subject;
 
         return (
           <div
@@ -33,7 +43,11 @@ export default function SubjectList({
               display: excludeSubjects?.includes(subject) ? "none" : "",
             }}
           >
-            <h3 className="text-2xl">
+            <h3
+              className={`text-2xl ${
+                isShowSimilarity ? getColorBySimiliarity(similarity) : ""
+              }`}
+            >
               {subject_code}: {name}
             </h3>
 
@@ -71,6 +85,8 @@ export default function SubjectList({
           </div>
         );
       })}
+
+      <div className="hidden text-emerald-400 text-amber-400 text-red-400"></div>
     </>
   );
 }

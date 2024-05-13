@@ -124,6 +124,7 @@ export default function App() {
                   excludeSubjects={selectedSubjects}
                   urlPrefix="https://handbook.uts.edu.au/subjects/"
                   addSubject={addSubject}
+                  isShowSimilarity={true}
                 />
 
                 <button
@@ -156,6 +157,7 @@ export default function App() {
               subjects={selectedSubjects}
               urlPrefix="https://handbook.uts.edu.au/subjects/"
               removeSubject={removeSubject}
+              isShowSimilarity={true}
             />
           )}
 

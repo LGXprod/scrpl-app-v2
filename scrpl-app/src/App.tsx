@@ -12,7 +12,7 @@ import { Subject } from "@/types";
 
 export default function App() {
   const [searchText, setSearchText] = useState<string>("");
-  const [sourceSubjectCode, setSourceSubjectCode] = useState<string | null>(
+  const [sourceSubject, setSourceSubject] = useState<Subject | null>(
     null
   );
   const [debouncedSearchText] = useDebounce(searchText, 1000);
@@ -49,11 +49,11 @@ export default function App() {
     data: recommendedSubjects,
     refetch: refetchRecommendedSubjects,
   } = useQuery({
-    queryKey: ["recommendation", sourceSubjectCode],
+    queryKey: ["recommendation", sourceSubject],
     queryFn: async (): Promise<Subject[] | null> => {
-      if (!sourceSubjectCode) return null;
+      if (!sourceSubject) return null;
 
-      const response = await axios.get(`/recommendation/${sourceSubjectCode}`);
+      const response = await axios.get(`/recommendation/${sourceSubject.subject_code}`);
       return response.data;
     },
   });
@@ -63,7 +63,7 @@ export default function App() {
   }
 
   function getSubjectRecommendations(subject: Subject) {
-    setSourceSubjectCode(subject.subject_code);
+    setSourceSubject(subject);
     refetchRecommendedSubjects();
   }
 
@@ -89,7 +89,7 @@ export default function App() {
 
       {!isShowSelections && (
         <>
-          {!sourceSubjectCode && (
+          {!sourceSubject && (
             <div className="w-full flex flex-col items-center justify-center gap-8 mb-12">
               <SearchBar
                 setSearchText={setSearchText}
@@ -109,7 +109,7 @@ export default function App() {
               </>
             )}
 
-            {!sourceSubjectCode && searchedSubjects && (
+            {!sourceSubject && searchedSubjects && (
               <SubjectList
                 subjects={searchedSubjects}
                 urlPrefix="https://www.sydney.edu.au/units/"
@@ -117,8 +117,10 @@ export default function App() {
               />
             )}
 
-            {sourceSubjectCode && recommendedSubjects && (
+            {sourceSubject && recommendedSubjects && (
               <>
+                <h3 className="text-3xl w-full text-center mb-6">{sourceSubject.subject_code}: {sourceSubject.name}</h3>
+
                 <SubjectList
                   subjects={recommendedSubjects}
                   excludeSubjects={selectedSubjects}
@@ -129,7 +131,7 @@ export default function App() {
 
                 <button
                   className="btn btn-primary mx-auto"
-                  onClick={() => setSourceSubjectCode(null)}
+                  onClick={() => setSourceSubject(null)}
                 >
                   Back
                 </button>
